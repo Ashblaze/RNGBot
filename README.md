@@ -1,0 +1,2 @@
+# RNGBot
+Discord bot
