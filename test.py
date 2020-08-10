@@ -21,6 +21,7 @@ async def help(ctx):
         colour = discord.Colour.green())
     embed.set_author(name='Help : list of commands available')
     embed.add_field(name='!roll', value='Print a random number. Default start is 1, end is 10', inline=False)
+    embed.add_field(name='Git Link', value='https://github.com/Ashblaze/RNGBot')
     await ctx.send(embed=embed)
     #await ctx.send('This is a test.')
 
@@ -79,7 +80,7 @@ def get_response(ctx):
         return('%s bol raha hai' % ctx.author.mention)
     elif user_name == 'Ashblaze':
         return('%s, yo.' % ctx.author.mention)
-    elif user_name == 'lalala':
+    elif user_name == 'Kevin Abraham':
         return('%s, nya nya!' % ctx.author.mention)
     elif user_name == 'kuro':
         return('Hands up, %s!' % ctx.author.mention)
