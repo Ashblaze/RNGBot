@@ -6,6 +6,7 @@ import random
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from responses import response_dict
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -32,20 +33,38 @@ async def on_ready():
 
 
 @bot.command(name='roll', help='Roll a random number.')
-async def roll(ctx, start = 1, end = 10):
-    if start > end:
-        start, end = end, start
-    
-    random_number = random.randint(int(start), int(end))
+async def roll(ctx, *args):
+    try:
+        if len(args) == 0:
+            start, end = 0, 10
+        elif len(args) == 1:
+            if int(args[0]) < 0:
+                start, end = int(args[0]), 0
+            else:
+                start, end = 0, int(args[0])
+        elif len(args) == 2:
+            if int(args[0]) < int(args[1]):
+                start, end = int(args[0]), int(args[1])
+            else:
+                start, end = int(args[1]), int(args[0])
+        else:
+            await ctx.send('Usage: !roll [start] [end]' \
+                ' or !roll [end] [start]')
+            return
+        
+        random_number = random.randint(start, end)
 
-    await ctx.send(random_number)
+        await ctx.send(random_number)
+    except (TypeError, UnboundLocalError, ValueError):
+        await ctx.send('Only integers allowed!')
 
 
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.errors.BadArgument):
-        await ctx.send('Usage: !roll [start<int>(1)] [end<int>(10)]' \
-            ' or !roll [end<int>(10)] [start<int>(1)]')
+        await ctx.send('Bad arguments!')
+    elif isinstance(error, commands.errors.CommandInvokeError):
+        await ctx.send('Oops, something went wrong with the command!')
 
 
 @bot.event
@@ -65,7 +84,7 @@ async def on_message(ctx):
     elif message_number[user_name] == 10:
         message_number[user_name] = 0
 
-    if message_number[user_name] == 1:
+    if message_number[user_name] == 5:
         response = get_response(ctx)
         if response:
             await ctx.channel.send(response)
@@ -74,34 +93,9 @@ async def on_message(ctx):
 
 def get_response(ctx):
     user_name = ctx.author.name
-    if user_name == 'akshayd31':
-        return('%s, yy chikna' % ctx.author.mention)
-    elif user_name == 'mintuj':
-        return('%s bol raha hai' % ctx.author.mention)
-    elif user_name == 'Ashblaze':
-        return('%s, yo.' % ctx.author.mention)
-    elif user_name == 'Kevin Abraham':
-        return('%s, nya nya!' % ctx.author.mention)
-    elif user_name == 'kuro':
-        return('Hands up, %s!' % ctx.author.mention)
-    elif user_name == 'Übermensch':
-        return('%s, U?' % ctx.author.mention)
-    elif user_name == 'rishirajatroy':
-        return('%s, U?' % ctx.author.mention)
-    elif user_name == 'DjentleMonK':
-        return('Yes, %s, I recommend you get rid of RhythmBot.' % ctx.author.mention)
-    elif user_name == 'jakrukuttan':
-        return('%s, I recommend you cease your extrapolation.' % ctx.author.mention)
-    elif user_name == 'naveenjohn94':
-        return('%s, 🙌' % ctx.author.mention)
-    elif user_name == 'seldombark':
-        return('%s, the fat one sends his regards.' % ctx.author.mention)
-    elif user_name == 'pøgbaJr':
-        return('%s, I can verify no bananas were stolen.' % ctx.author.mention)
-    elif user_name == 'areafunds20':
-        return('Well, well... If it ain\'t Fabulous Fuf, %s.' % ctx.author.mention)
-    elif user_name == 'mukund':
-        return('RAAAAAAAUUUUUUUUULLL!!! %s.' % ctx.author.mention)
+    if response_dict.get(user_name):
+        response = random.choice(response_dict[user_name])
+        return(' '.join(['%s' % ctx.author.mention, response]))
     else:
         return ''
 
